@@ -39,7 +39,6 @@ export default function FormPage() {
         data[index]["nameError"] =
           "The name must be at least 3 characters long.";
       } else {
-        console.log("nameError1");
         data[index]["nameError"] = "";
       }
     } else {
@@ -47,7 +46,6 @@ export default function FormPage() {
         data[index]["nameError"] =
           "The name must be at least 3 characters long.";
       } else {
-        console.log("nameError2");
         data[index]["nameError"] = "";
       }
     }
@@ -188,6 +186,7 @@ export default function FormPage() {
     });
 
     setFormFields(data);
+    updateValidationStatus(data);
   };
 
   const updateValidationStatus = (formFieldsToUpdate: FormFieldData[]) => {

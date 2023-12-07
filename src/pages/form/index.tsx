@@ -26,6 +26,10 @@ export default function FormPage() {
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
+    if (isConfirmed) {
+      return;
+    }
+
     const {
       target: { name, value },
     } = e;
@@ -77,6 +81,10 @@ export default function FormPage() {
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>, index: number) => {
+    if (isConfirmed) {
+      return;
+    }
+
     const {
       target: { name, value },
     } = e;
@@ -120,6 +128,10 @@ export default function FormPage() {
   };
 
   const updateValidationStatus = (formFieldsToUpdate: FormFieldData[]) => {
+    if (isConfirmed) {
+      return;
+    }
+
     const isValid = formFieldsToUpdate.every(
       (field) =>
         field.name.trim() !== "" &&

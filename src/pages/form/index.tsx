@@ -11,9 +11,10 @@ export interface FormFieldData {
 type FormFieldName = keyof FormFieldData;
 
 export default function FormPage() {
-  const [formFields, setFormFields] = useState<FormFieldData[]>([
+  const initForm = [
     { name: "", password: "", nameError: "", passwordError: "" },
-  ]);
+  ];
+  const [formFields, setFormFields] = useState<FormFieldData[]>(initForm);
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
@@ -227,7 +228,7 @@ export default function FormPage() {
       ) : (
         <Form
           index={0}
-          form={formFields[0]}
+          form={initForm[0]}
           handleFormChange={handleFormChange}
           handleBlur={handleBlur}
           removeFields={removeFields}

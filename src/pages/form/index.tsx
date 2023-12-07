@@ -19,6 +19,9 @@ export default function FormPage() {
   const [isValidated, setIsValidated] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
+  const MIN_NAME_LENGTH = 3;
+  const MIN_PASSWORD_LENGTH = 6;
+
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -36,15 +39,20 @@ export default function FormPage() {
     };
 
     if (fieldName === "name") {
+      //한글일 경우 한개의 글자가 완성된 후 에러 체크
       if (isKorean(value.charAt(value.length - 1))) {
-        if (isKorean(value.charAt(value.length - 2)) && value.length < 3) {
+        if (
+          isKorean(value.charAt(value.length - 2)) &&
+          value.length < MIN_NAME_LENGTH
+        ) {
           data[index]["nameError"] =
             "The name must be at least 3 characters long.";
         } else {
           data[index]["nameError"] = "";
         }
       } else {
-        if (value.length < 3) {
+        //한글 외 경우 에러 체크
+        if (value.length < MIN_NAME_LENGTH) {
           data[index]["nameError"] =
             "The name must be at least 3 characters long.";
         } else {
@@ -53,17 +61,19 @@ export default function FormPage() {
       }
     }
 
-    if (fieldName === "password" && value.length < 6) {
-      data[index]["passwordError"] =
-        "Password must be at least 6 characters long.";
-    } else {
-      data[index]["passwordError"] = "";
+    if (fieldName === "password") {
+      if (value.length < MIN_PASSWORD_LENGTH) {
+        data[index]["passwordError"] =
+          "Password must be at least 6 characters long.";
+      } else {
+        data[index]["passwordError"] = "";
+      }
     }
 
     data[index][fieldName] = value;
 
     setFormFields(data);
-    updateConfirmationStatus(data);
+    updateValidationStatus(data);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>, index: number) => {
@@ -83,12 +93,12 @@ export default function FormPage() {
         data.forEach((field, i) => {
           if (field.name === value && value.length > 0) {
             data[i]["nameError"] = `The name "${value}" is duplicated`;
-          }
-        });
-      } else {
-        data.forEach((field, i) => {
-          if (field.name === value) {
-            data[i]["nameError"] = "";
+          } else {
+            data.forEach((field, i) => {
+              if (field.name === value) {
+                data[i]["nameError"] = "";
+              }
+            });
           }
         });
       }
@@ -97,16 +107,19 @@ export default function FormPage() {
     if (fieldName === "password") {
       if (value.length < 1) {
         data[index]["passwordError"] = "Password is required";
+      } else if (value.length < MIN_PASSWORD_LENGTH) {
+        data[index]["passwordError"] =
+          "Password must be at least 6 characters long.";
       } else {
         data[index]["passwordError"] = "";
       }
     }
 
     setFormFields(data);
-    updateConfirmationStatus(data);
+    updateValidationStatus(data);
   };
 
-  const updateConfirmationStatus = (formFieldsToUpdate: FormFieldData[]) => {
+  const updateValidationStatus = (formFieldsToUpdate: FormFieldData[]) => {
     const isValid = formFieldsToUpdate.every(
       (field) =>
         field.name.trim() !== "" &&
@@ -123,7 +136,7 @@ export default function FormPage() {
 
     setFormFields((prevFormFields) => {
       const newFormFields = [...prevFormFields, fieldObj];
-      updateConfirmationStatus(newFormFields);
+      updateValidationStatus(newFormFields);
       return newFormFields;
     });
   };
@@ -188,15 +201,15 @@ export default function FormPage() {
 
       {isConfirmed && (
         <div className="app-p-4 app-bg-[#f0f0f0] app-mt-6">
-          {formFields.map((form, index) => {
+          {formFields.map(({ name, password }, index) => {
             return (
               <div key={index} className="app-mb-2 ">
                 <p className="app-m-0">
-                  <span className="app-font-bold">Name</span>: {form.name}
+                  <span className="app-font-bold">Name</span>: {name}
                 </p>
                 <p className="app-m-0">
                   <span className="app-font-bold">Password</span>:{" "}
-                  {convertToAsterisk(form.password)}
+                  {convertToAsterisk(password)}
                 </p>
               </div>
             );

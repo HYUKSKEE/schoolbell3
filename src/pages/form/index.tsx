@@ -39,6 +39,7 @@ export default function FormPage() {
         data[index]["nameError"] =
           "The name must be at least 3 characters long.";
       } else {
+        console.log("nameError1");
         data[index]["nameError"] = "";
       }
     } else {
@@ -46,6 +47,7 @@ export default function FormPage() {
         data[index]["nameError"] =
           "The name must be at least 3 characters long.";
       } else {
+        console.log("nameError2");
         data[index]["nameError"] = "";
       }
     }
@@ -85,6 +87,11 @@ export default function FormPage() {
           data[i]["nameError"] = "";
         }
       });
+
+      if (value.length < MIN_NAME_LENGTH) {
+        data[index]["nameError"] =
+          "The name must be at least 3 characters long.";
+      }
     }
   };
 

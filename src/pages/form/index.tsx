@@ -1,5 +1,5 @@
 import Form from "components/Form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export interface FormFieldData {
   name: string;
@@ -7,8 +7,6 @@ export interface FormFieldData {
   nameError: string;
   passwordError: string;
 }
-
-export interface ErrorType {}
 
 type FormFieldName = keyof FormFieldData;
 
@@ -211,7 +209,6 @@ export default function FormPage() {
       : text.substring(0, 3) + "*".repeat(text.length - 3);
   };
 
-  useEffect(() => {}, []);
   return (
     <div className="app-w-full app-max-w-[500px] app-m-auto app-pt-[100px]">
       {!isConfirmed ? (

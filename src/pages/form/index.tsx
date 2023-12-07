@@ -1,5 +1,5 @@
 import Form from "components/Form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface FormFieldData {
   name: string;
@@ -22,6 +22,88 @@ export default function FormPage() {
   const MIN_NAME_LENGTH = 3;
   const MIN_PASSWORD_LENGTH = 6;
 
+  const changeEventValidateName = (
+    value: string,
+    data: FormFieldData[],
+    index: number
+  ) => {
+    const isKorean = (text: string): boolean => {
+      const hangulRegex = /[ㄱ-ㅎㅏ-ㅣ가-힣]/;
+      return hangulRegex.test(text);
+    };
+
+    if (isKorean(value.charAt(value.length - 1))) {
+      if (
+        isKorean(value.charAt(value.length - 2)) &&
+        value.length < MIN_NAME_LENGTH
+      ) {
+        data[index]["nameError"] =
+          "The name must be at least 3 characters long.";
+      } else {
+        data[index]["nameError"] = "";
+      }
+    } else {
+      if (value.length < MIN_NAME_LENGTH) {
+        data[index]["nameError"] =
+          "The name must be at least 3 characters long.";
+      } else {
+        data[index]["nameError"] = "";
+      }
+    }
+  };
+
+  const changeEventValidatePassword = (
+    value: string,
+    data: FormFieldData[],
+    index: number
+  ) => {
+    if (value.length < MIN_PASSWORD_LENGTH) {
+      data[index]["passwordError"] =
+        "Password must be at least 6 characters long.";
+    } else {
+      data[index]["passwordError"] = "";
+    }
+  };
+
+  const blurEventValidateName = (
+    data: FormFieldData[],
+    index: number,
+    value: string
+  ) => {
+    const isNameDuplicated = data.some((field, i) => {
+      return i !== index && field.name === value;
+    });
+
+    if (isNameDuplicated) {
+      data.forEach((field, i) => {
+        if (field.name === value && value.length > 0) {
+          data[i]["nameError"] = `The name "${value}" is duplicated`;
+        }
+      });
+    } else {
+      data.forEach((field, i) => {
+        if (field.name === value && value.length > 0) {
+          data[i]["nameError"] = "";
+        }
+      });
+    }
+  };
+
+  const blurEventValidatePassword = (
+    data: FormFieldData[],
+    index: number,
+    value: string
+  ) => {
+    if (value.length < 1) {
+      data[index]["passwordError"] = "Password is required";
+    } else if (value.length < MIN_PASSWORD_LENGTH) {
+      data[index]["passwordError"] =
+        "Password must be at least 6 characters long.";
+    } else {
+      data[index]["passwordError"] = "";
+    }
+  };
+
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -29,49 +111,18 @@ export default function FormPage() {
     if (isConfirmed) {
       return;
     }
-
     const {
       target: { name, value },
     } = e;
 
     let data = [...formFields];
     const fieldName = name as FormFieldName;
-
-    const isKorean = (text: string): boolean => {
-      const hangulRegex = /[ㄱ-ㅎㅏ-ㅣ가-힣]/;
-      return hangulRegex.test(text);
-    };
-
     if (fieldName === "name") {
-      //한글일 경우 한개의 글자가 완성된 후 에러 체크
-      if (isKorean(value.charAt(value.length - 1))) {
-        if (
-          isKorean(value.charAt(value.length - 2)) &&
-          value.length < MIN_NAME_LENGTH
-        ) {
-          data[index]["nameError"] =
-            "The name must be at least 3 characters long.";
-        } else {
-          data[index]["nameError"] = "";
-        }
-      } else {
-        //한글 외 경우 에러 체크
-        if (value.length < MIN_NAME_LENGTH) {
-          data[index]["nameError"] =
-            "The name must be at least 3 characters long.";
-        } else {
-          data[index]["nameError"] = "";
-        }
-      }
+      changeEventValidateName(value, data, index);
     }
 
     if (fieldName === "password") {
-      if (value.length < MIN_PASSWORD_LENGTH) {
-        data[index]["passwordError"] =
-          "Password must be at least 6 characters long.";
-      } else {
-        data[index]["passwordError"] = "";
-      }
+      changeEventValidatePassword(value, data, index);
     }
 
     data[index][fieldName] = value;
@@ -92,55 +143,16 @@ export default function FormPage() {
     let data = [...formFields];
     const fieldName = name as FormFieldName;
 
-    const isNameDuplicated = data.some(
-      (field, i) => i !== index && field.name === value
-    );
-
     if (fieldName === "name") {
-      if (isNameDuplicated) {
-        data.forEach((field, i) => {
-          if (field.name === value && value.length > 0) {
-            data[i]["nameError"] = `The name "${value}" is duplicated`;
-          } else {
-            data.forEach((field, i) => {
-              if (field.name === value) {
-                data[i]["nameError"] = "";
-              }
-            });
-          }
-        });
-      }
+      blurEventValidateName(data, index, value);
     }
 
     if (fieldName === "password") {
-      if (value.length < 1) {
-        data[index]["passwordError"] = "Password is required";
-      } else if (value.length < MIN_PASSWORD_LENGTH) {
-        data[index]["passwordError"] =
-          "Password must be at least 6 characters long.";
-      } else {
-        data[index]["passwordError"] = "";
-      }
+      blurEventValidatePassword(data, index, value);
     }
 
     setFormFields(data);
     updateValidationStatus(data);
-  };
-
-  const updateValidationStatus = (formFieldsToUpdate: FormFieldData[]) => {
-    if (isConfirmed) {
-      return;
-    }
-
-    const isValid = formFieldsToUpdate.every(
-      (field) =>
-        field.name.trim() !== "" &&
-        field.password.trim() !== "" &&
-        field.nameError === "" &&
-        field.passwordError === ""
-    );
-
-    setIsValidated(isValid);
   };
 
   const addFields = () => {
@@ -164,7 +176,28 @@ export default function FormPage() {
     let data = [...formFields];
     data.splice(index, 1);
 
+    // 중복값 제거 되었을때 에러 메세지 갱신
+    data.forEach((field, i) => {
+      blurEventValidateName(data, i, field.name);
+    });
+
     setFormFields(data);
+  };
+
+  const updateValidationStatus = (formFieldsToUpdate: FormFieldData[]) => {
+    if (isConfirmed) {
+      return;
+    }
+
+    const isValid = formFieldsToUpdate.every(
+      (field) =>
+        field.name.trim() !== "" &&
+        field.password.trim() !== "" &&
+        field.nameError === "" &&
+        field.passwordError === ""
+    );
+
+    setIsValidated(isValid);
   };
 
   const handleConfirmation = () => {
@@ -177,6 +210,8 @@ export default function FormPage() {
       ? text
       : text.substring(0, 3) + "*".repeat(text.length - 3);
   };
+
+  useEffect(() => {}, []);
   return (
     <div className="app-w-full app-max-w-[500px] app-m-auto app-pt-[100px]">
       {!isConfirmed ? (

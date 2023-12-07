@@ -32,18 +32,22 @@ export default function Form({
         </div>
         <form>
           <div className="app-flex app-flex-col app-mb-3">
-            <label htmlFor="name" className="app-text-[14px] app-font-medium">
+            <label
+              htmlFor={`name${index}`}
+              className="app-text-[14px] app-font-medium"
+            >
               Name
             </label>
             <input
               type="text"
               name="name"
-              id="name"
+              id={`name${index}`}
               className={`app-border app-border-solid app-border-[#505050] app-p-2 focus:app-outline-none ${
                 form.nameError.length > 0
                   ? "app-bg-[rgba(255,0,0,0.1)] app-border-2 app-border-solid app-border-[red]"
                   : "app-bg-[#ffffff]"
               }`}
+              value={form.name}
               onChange={(event) => handleFormChange(event, index)}
               onBlur={(e) => handleBlur(e, index)}
             />
@@ -55,7 +59,7 @@ export default function Form({
           </div>
           <div className="app-flex app-flex-col app-mb-3">
             <label
-              htmlFor="password"
+              htmlFor={`password${index}`}
               className="app-text-[14px] app-font-medium"
             >
               Password
@@ -63,12 +67,13 @@ export default function Form({
             <input
               type="password"
               name="password"
-              id="password"
+              id={`password${index}`}
               className={`app-border app-border-solid app-border-[#505050] app-p-2 focus:app-outline-none ${
                 form.passwordError.length > 0
                   ? "app-bg-[rgba(255,0,0,0.1)] app-border-2 app-border-solid app-border-[red]"
                   : "app-bg-[#ffffff]"
               }`}
+              value={form.password}
               onChange={(event) => handleFormChange(event, index)}
               onBlur={(e) => handleBlur(e, index)}
             />

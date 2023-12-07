@@ -132,6 +132,9 @@ export default function FormPage() {
   };
 
   const addFields = () => {
+    if (isConfirmed) {
+      return;
+    }
     let fieldObj = { name: "", password: "", nameError: "", passwordError: "" };
 
     setFormFields((prevFormFields) => {
@@ -142,6 +145,10 @@ export default function FormPage() {
   };
 
   const removeFields = (index: number) => {
+    if (isConfirmed) {
+      return;
+    }
+
     let data = [...formFields];
     data.splice(index, 1);
 
